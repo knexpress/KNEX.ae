@@ -133,10 +133,10 @@ export async function GET(request: NextRequest) {
         .filter(booking => booking.awb) // Only return bookings with AWB
         .map(booking => {
           // Handle both submittedAt and createdAt fields
-          const submittedAt = booking.submittedAt 
-            ? (booking.submittedAt instanceof Date 
-                ? booking.submittedAt.toISOString() 
-                : new Date(booking.submittedAt).toISOString())
+          const submittedAt = (booking as any).submittedAt 
+            ? ((booking as any).submittedAt instanceof Date 
+                ? (booking as any).submittedAt.toISOString() 
+                : new Date((booking as any).submittedAt).toISOString())
             : (booking.createdAt 
                 ? (booking.createdAt instanceof Date 
                     ? booking.createdAt.toISOString() 
@@ -146,7 +146,7 @@ export async function GET(request: NextRequest) {
           return {
             awb: booking.awb,
             submittedAt: submittedAt,
-            submissionTimestamp: booking.submissionTimestamp || submittedAt,
+            submissionTimestamp: (booking as any).submissionTimestamp || submittedAt,
             createdDate: submittedAt ? new Date(submittedAt).toLocaleDateString() : null,
           }
         })

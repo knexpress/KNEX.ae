@@ -13,6 +13,10 @@ export interface IBooking extends Document {
   senderEmail: string
   senderPhone: string
   senderAddress: string
+  sender?: {
+    contactNo?: string
+    [key: string]: any
+  }
   receiverName: string
   receiverEmail: string
   receiverPhone: string
@@ -30,6 +34,8 @@ export interface IBooking extends Document {
     _id?: string
   }>
   batch_no?: string
+  submittedAt?: Date
+  submissionTimestamp?: string
   createdAt: Date
   updatedAt: Date
 }
@@ -78,6 +84,12 @@ const BookingSchema: Schema = new Schema(
       notes: String,
     }],
     batch_no: String,
+    submittedAt: Date,
+    submissionTimestamp: String,
+    sender: {
+      type: Map,
+      of: Schema.Types.Mixed,
+    },
   },
   {
     timestamps: true,
