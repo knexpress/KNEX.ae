@@ -92,6 +92,78 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const trackingCode = searchParams.get('trackingCode')
     const awb = searchParams.get('awb')
+    const phone = searchParams.get('phone')
+
+    if (phone) {
+      // Normalize phone number: remove +, spaces, dashes, and parentheses for flexible matching
+      const normalizePhone = (phoneNum: string) => phoneNum.replace(/[\s\+\-\(\)]/g, '').trim()
+      const normalizedPhone = normalizePhone(phone)
+      const phoneDigits = normalizedPhone.replace(/^\+?/, '')
+      
+      // Search for bookings by phone number in sender.contactNo field
+      // Try multiple formats: exact match, with/without +, and regex for partial matches
+      const bookings = await Booking.find({
+        $or: [
+          // Exact matches with sender.contactNo
+          { 'sender.contactNo': phone },
+          { 'sender.contactNo': normalizedPhone },
+          { 'sender.contactNo': `+${phoneDigits}` },
+          // Regex match for flexible formatting
+          { 'sender.contactNo': { $regex: phoneDigits, $options: 'i' } },
+          // Also try legacy fields for backward compatibility
+          { senderPhone: phone },
+          { senderPhone: normalizedPhone },
+          { senderPhone: `+${phoneDigits}` },
+          { senderPhone: { $regex: phoneDigits, $options: 'i' } },
+        ],
+      })
+        .sort({ submittedAt: -1, createdAt: -1 })
+        .select('awb submittedAt submissionTimestamp sender createdAt')
+        .lean()
+
+      if (!bookings || bookings.length === 0) {
+        return NextResponse.json(
+          { error: 'No bookings found for this phone number', phone: phone },
+          { status: 404 }
+        )
+      }
+
+      // Format response with AWB, submittedAt, and submissionTimestamp
+      const results = bookings
+        .filter(booking => booking.awb) // Only return bookings with AWB
+        .map(booking => {
+          // Handle both submittedAt and createdAt fields
+          const submittedAt = booking.submittedAt 
+            ? (booking.submittedAt instanceof Date 
+                ? booking.submittedAt.toISOString() 
+                : new Date(booking.submittedAt).toISOString())
+            : (booking.createdAt 
+                ? (booking.createdAt instanceof Date 
+                    ? booking.createdAt.toISOString() 
+                    : new Date(booking.createdAt).toISOString())
+                : null)
+          
+          return {
+            awb: booking.awb,
+            submittedAt: submittedAt,
+            submissionTimestamp: booking.submissionTimestamp || submittedAt,
+            createdDate: submittedAt ? new Date(submittedAt).toLocaleDateString() : null,
+          }
+        })
+
+      if (results.length === 0) {
+        return NextResponse.json(
+          { error: 'No bookings with AWB found for this phone number' },
+          { status: 404 }
+        )
+      }
+
+      return NextResponse.json({
+        success: true,
+        count: results.length,
+        bookings: results,
+      })
+    }
 
     if (trackingCode) {
       const booking = await Booking.findOne({ trackingCode: trackingCode.toUpperCase() })

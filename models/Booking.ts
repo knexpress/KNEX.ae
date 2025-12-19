@@ -21,6 +21,15 @@ export interface IBooking extends Document {
   description: string
   pickupType: 'dropoff' | 'pickup'
   status?: string
+  shipment_status?: string
+  shipment_status_history?: Array<{
+    status: string
+    updated_at: Date
+    updated_by: string
+    notes?: string
+    _id?: string
+  }>
+  batch_no?: string
   createdAt: Date
   updatedAt: Date
 }
@@ -61,6 +70,14 @@ const BookingSchema: Schema = new Schema(
       default: 'dropoff',
     },
     status: String,
+    shipment_status: String,
+    shipment_status_history: [{
+      status: String,
+      updated_at: Date,
+      updated_by: String,
+      notes: String,
+    }],
+    batch_no: String,
   },
   {
     timestamps: true,

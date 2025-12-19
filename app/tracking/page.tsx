@@ -22,6 +22,7 @@ interface TrackingResponse {
     awb?: string | null
     service: any
     status: string
+    batch_no?: string | null
     createdAt: string
   }
   invoice?: {
@@ -140,8 +141,11 @@ function TrackingContent() {
                       {trackingData.booking.awb && (
                         <p className="text-sm text-gray-600">AWB: <span className="font-semibold text-gray-900">{trackingData.booking.awb}</span></p>
                       )}
+                      {trackingData.booking.batch_no && (
+                        <p className="text-sm text-gray-600">Batch No: <span className="font-semibold text-gray-900">{trackingData.booking.batch_no}</span></p>
+                      )}
                       <p className="text-sm text-gray-600">Service: <span className="font-semibold text-gray-900">{trackingData.booking.service?.title} ({trackingData.booking.service?.type})</span></p>
-                      <p className="text-sm text-gray-600">Status: <span className="font-semibold text-green-600 capitalize">{trackingData.booking.status}</span></p>
+                      <p className="text-sm text-gray-600">Status: <span className="font-semibold text-green-600 capitalize">{trackingData.booking.status.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase())}</span></p>
                     </div>
                   )}
                 </div>
@@ -165,10 +169,17 @@ function TrackingContent() {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-1 md:mb-2">
-                          <FaMapMarkerAlt className="text-green-600 text-sm md:text-base" />
-                          <h3 className="font-semibold text-sm md:text-base text-gray-900">{status.location}</h3>
+                          <h3 className="font-semibold text-sm md:text-base text-gray-900 capitalize">
+                            {status.status.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                          </h3>
                         </div>
-                        <p className="text-sm md:text-base text-gray-600 mb-1">{status.description}</p>
+                        <div className="flex items-center space-x-2 mb-1">
+                          <FaMapMarkerAlt className="text-green-600 text-sm md:text-base" />
+                          <p className="text-sm md:text-base text-gray-600">{status.location}</p>
+                        </div>
+                        {status.description && (
+                          <p className="text-sm md:text-base text-gray-600 mb-1">{status.description}</p>
+                        )}
                         <p className="text-xs md:text-sm text-gray-500">
                           {new Date(status.timestamp).toLocaleString()}
                         </p>

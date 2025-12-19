@@ -38,16 +38,6 @@ export default function Hubs() {
       timeZone: 'Philippines Time Zone\nGMT+8',
       mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3859.1234567890!2d120.9876543!3d14.1234567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTTCsDA3JzI0LjQiTiAxMjDCsDU5JzE1LjYiRQ!5e0!3m2!1sen!2sph!4v1234567890123!5m2!1sen!2sph',
     },
-    {
-      id: 'pampanga',
-      name: 'PAMPANGA HUB',
-      address: 'Pampanga, Philippines',
-      email: 'customercare@knexpress.ae',
-      phone: '+63 XXX XXX XXXX',
-      operatingTime: 'EVERYDAY\n9 AM - 6 PM',
-      timeZone: 'Philippines Time Zone\nGMT+8',
-      mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3859.1234567890!2d120.9876543!3d15.1234567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTXCsDA3JzI0LjQiTiAxMjDCsDU5JzE1LjYiRQ!5e0!3m2!1sen!2sph!4v1234567890123!5m2!1sen!2sph',
-    },
   ]
 
   const currentHub = hubs.find(hub => hub.id === selectedHub) || hubs[0]
