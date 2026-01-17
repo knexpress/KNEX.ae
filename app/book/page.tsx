@@ -97,20 +97,20 @@ function BookContent() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />
-        <div className="container mx-auto px-4 py-16">
+        <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
           <div className="max-w-2xl mx-auto text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Select a Service</h1>
-            <p className="text-gray-600 mb-8">Please select a shipping service to continue.</p>
-            <div className="grid md:grid-cols-2 gap-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Select a Service</h1>
+            <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">Please select a shipping service to continue.</p>
+            <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
               {services.map((service) => (
                 <button
                   key={service.id}
                   onClick={() => setSelectedService(service)}
-                  className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition text-left"
+                  className="bg-white p-4 sm:p-6 rounded-lg shadow-lg hover:shadow-xl transition text-left"
                 >
-                  <h3 className="font-bold text-gray-900 mb-2">{service.title}</h3>
-                  <p className="text-gray-600 mb-2">{service.type}</p>
-                  <p className="text-green-600 font-semibold">{service.price}</p>
+                  <h3 className="font-bold text-gray-900 mb-2 text-sm sm:text-base">{service.title}</h3>
+                  <p className="text-gray-600 mb-2 text-xs sm:text-sm">{service.type}</p>
+                  <p className="text-green-600 font-semibold text-sm sm:text-base">{service.price}</p>
                 </button>
               ))}
             </div>
@@ -125,9 +125,9 @@ function BookContent() {
     <div className="min-h-screen bg-gray-50">
       <Header />
 
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-gray-900 mb-8 text-center">Book Your Shipment</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6 sm:mb-8 text-center">Book Your Shipment</h1>
 
           {success && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
@@ -138,16 +138,16 @@ function BookContent() {
           )}
 
           {/* Selected Service */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">{selectedService.title}</h2>
-                <p className="text-gray-600">{selectedService.type}</p>
-                <p className="text-green-600 font-semibold text-lg mt-2">{selectedService.price}</p>
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+              <div className="flex-1">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{selectedService.title}</h2>
+                <p className="text-gray-600 text-sm sm:text-base">{selectedService.type}</p>
+                <p className="text-green-600 font-semibold text-base sm:text-lg mt-2">{selectedService.price}</p>
               </div>
               <button
                 onClick={() => setSelectedService(null)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 text-sm sm:text-base px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition self-start sm:self-auto"
               >
                 Change Service
               </button>
@@ -155,11 +155,11 @@ function BookContent() {
           </div>
 
           {/* Booking Form */}
-          <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-8">
-            <div className="grid md:grid-cols-2 gap-6 mb-6">
+          <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
+            <div className="grid md:grid-cols-2 gap-6 sm:gap-8 mb-6">
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Sender Information</h3>
-                <div className="space-y-4">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Sender Information</h3>
+                <div className="space-y-3 sm:space-y-4">
                   <input
                     type="text"
                     placeholder="Full Name"
@@ -196,8 +196,8 @@ function BookContent() {
               </div>
 
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Receiver Information</h3>
-                <div className="space-y-4">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Receiver Information</h3>
+                <div className="space-y-3 sm:space-y-4">
                   <input
                     type="text"
                     placeholder="Full Name"
@@ -234,9 +234,9 @@ function BookContent() {
               </div>
             </div>
 
-            <div className="border-t border-gray-200 pt-6 mb-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Shipment Details</h3>
-              <div className="grid md:grid-cols-2 gap-6">
+            <div className="border-t border-gray-200 pt-4 sm:pt-6 mb-6">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Shipment Details</h3>
+              <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label className="block text-gray-700 mb-2">Weight (kg) or Volume (CBM)</label>
                   <input

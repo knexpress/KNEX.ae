@@ -2,8 +2,8 @@ import Image from 'next/image'
 
 export default function WeTreatEveryShipment() {
   return (
-    <section className="bg-gray-100 py-8 md:py-16">
-      <div className="container mx-auto px-4">
+    <section className="bg-gray-100 py-8 sm:py-12 md:py-16">
+      <div className="container mx-auto px-4 sm:px-6">
         <div className="grid md:grid-cols-2 gap-6 md:gap-12 items-center max-w-6xl mx-auto">
           {/* Left - Content */}
           <div className="order-2 md:order-1">

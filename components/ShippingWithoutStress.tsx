@@ -22,8 +22,8 @@ export default function ShippingWithoutStress() {
   }, [images.length])
 
   return (
-    <section className="bg-green-50 py-8 md:py-16">
-      <div className="container mx-auto px-4">
+    <section className="bg-green-50 py-8 sm:py-12 md:py-16">
+      <div className="container mx-auto px-4 sm:px-6">
         <div className="grid md:grid-cols-2 gap-6 md:gap-12 items-center max-w-6xl mx-auto">
           {/* Left - Image Slider */}
           <div className="relative aspect-[9/16] w-full max-w-xs mx-auto md:max-w-none rounded-lg overflow-hidden">

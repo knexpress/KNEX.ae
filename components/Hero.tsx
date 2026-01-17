@@ -14,8 +14,8 @@ export default function Hero() {
   }
 
   return (
-    <section className="bg-white py-8 md:py-16">
-      <div className="container mx-auto px-4">
+    <section className="bg-white py-8 sm:py-12 md:py-16">
+      <div className="container mx-auto px-4 sm:px-6">
         <div className="flex flex-col md:flex-row items-start justify-between gap-6 md:gap-8">
           {/* Left Content */}
           <div className="flex-1 w-full md:max-w-2xl">

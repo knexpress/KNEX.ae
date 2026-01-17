@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import connectDB from '@/lib/mongodb'
 import InvoiceRequest from '@/models/InvoiceRequest'
 import Booking from '@/models/Booking'
+import { formatStatusForDisplay, normalizeStatus } from '@/lib/shipmentStatuses'
 
 interface TrackingStatus {
   status: string
   location: string
   timestamp: string
   description: string
+  showOnlyDescription?: boolean
 }
 
 export async function GET(request: NextRequest) {
@@ -50,7 +52,7 @@ export async function GET(request: NextRequest) {
         
         if (booking.shipment_status_history && Array.isArray(booking.shipment_status_history) && booking.shipment_status_history.length > 0) {
           // Sort by updated_at (newest first) and format
-          statusHistory = booking.shipment_status_history
+          const rawHistory = booking.shipment_status_history
             .map((historyItem: any) => {
               const updatedAt = historyItem.updated_at
                 ? (historyItem.updated_at instanceof Date 
@@ -58,11 +60,11 @@ export async function GET(request: NextRequest) {
                     : new Date(historyItem.updated_at).toISOString())
                 : new Date().toISOString()
               
-              // Format status for display
-              const statusText = historyItem.status?.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Unknown'
+              // Format status for display using standardized statuses
+              const statusText = formatStatusForDisplay(historyItem.status)
               
               // Determine location based on status
-              let location = 'In transit'
+              let location = ''
               if (historyItem.status?.includes('MANILA')) {
                 location = 'Manila, Philippines'
               } else if (historyItem.status?.includes('DUBAI') || historyItem.status?.includes('UAE')) {
@@ -73,21 +75,59 @@ export async function GET(request: NextRequest) {
                 location = booking.senderAddress
               }
 
+              // Filter out invoice-related descriptions
+              let description = historyItem.notes || statusText
+              if (description && (
+                description.toLowerCase().includes('invoice request status') ||
+                description.toLowerCase().includes('invoice status changed')
+              )) {
+                description = '' // Remove invoice status change descriptions
+              }
+
               return {
                 status: historyItem.status || 'UNKNOWN',
                 location: location,
                 timestamp: updatedAt,
-                description: historyItem.notes || statusText,
+                description: description,
               }
             })
             .sort((a: TrackingStatus, b: TrackingStatus) => {
               // Sort by timestamp (newest first)
               return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
             })
+
+          // Group ALL items by status (not just consecutive), showing status only once per group
+          // Normalize statuses for proper grouping
+          const statusGroups = new Map<string, TrackingStatus[]>()
+          
+          rawHistory.forEach((item) => {
+            const normalizedStatus = normalizeStatus(item.status)
+            if (!statusGroups.has(normalizedStatus)) {
+              statusGroups.set(normalizedStatus, [])
+            }
+            statusGroups.get(normalizedStatus)!.push(item)
+          })
+          
+          // Rebuild history: only show the main status entry (newest) for each group
+          statusHistory = []
+          statusGroups.forEach((groupItems, statusKey) => {
+            // Sort group items by timestamp (newest first)
+            const sortedGroup = groupItems.sort((a, b) => 
+              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            )
+            
+            // Only show the first (newest) item for each status group
+            statusHistory.push(sortedGroup[0])
+          })
+          
+          // Sort final history by timestamp (newest first) to maintain chronological order
+          statusHistory.sort((a, b) => 
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          )
         } else if (booking.shipment_status) {
           // If no history but has current status, create a single status entry
-          const statusText = booking.shipment_status.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase())
-          let location = 'In transit'
+          const statusText = formatStatusForDisplay(booking.shipment_status)
+          let location = ''
           if (booking.shipment_status.includes('MANILA')) {
             location = 'Manila, Philippines'
           } else if (booking.shipment_status.includes('DUBAI') || booking.shipment_status.includes('UAE')) {
@@ -108,7 +148,7 @@ export async function GET(request: NextRequest) {
           // Fallback to old status field
           statusHistory = [{
             status: booking.status,
-            location: booking.receiverAddress || 'In transit',
+            location: booking.receiverAddress || '',
             timestamp: booking.updatedAt 
               ? (booking.updatedAt instanceof Date ? booking.updatedAt.toISOString() : new Date(booking.updatedAt).toISOString())
               : new Date().toISOString(),
@@ -191,7 +231,7 @@ export async function GET(request: NextRequest) {
         status: (() => {
           // If booking found, use its shipment_status_history
           if (booking && (booking as any).shipment_status_history && Array.isArray((booking as any).shipment_status_history) && (booking as any).shipment_status_history.length > 0) {
-            return (booking as any).shipment_status_history
+            const rawHistory = (booking as any).shipment_status_history
               .map((historyItem: any) => {
                 const updatedAt = historyItem.updated_at
                   ? (historyItem.updated_at instanceof Date 
@@ -199,9 +239,9 @@ export async function GET(request: NextRequest) {
                       : new Date(historyItem.updated_at).toISOString())
                   : invoiceUpdatedAt
                 
-                const statusText = historyItem.status?.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Unknown'
+                const statusText = formatStatusForDisplay(historyItem.status)
                 
-                let location = 'In transit'
+                let location = ''
                 if (historyItem.status?.includes('MANILA')) {
                   location = 'Manila, Philippines'
                 } else if (historyItem.status?.includes('DUBAI') || historyItem.status?.includes('UAE')) {
@@ -210,21 +250,59 @@ export async function GET(request: NextRequest) {
                   location = booking.receiverAddress
                 }
 
+                // Filter out invoice-related descriptions
+                let description = historyItem.notes || statusText
+                if (description && (
+                  description.toLowerCase().includes('invoice request status') ||
+                  description.toLowerCase().includes('invoice status changed')
+                )) {
+                  description = '' // Remove invoice status change descriptions
+                }
+
                 return {
                   status: historyItem.status || 'UNKNOWN',
                   location: location,
                   timestamp: updatedAt,
-                  description: historyItem.notes || statusText,
+                  description: description,
                 }
               })
               .sort((a: TrackingStatus, b: TrackingStatus) => {
                 return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
               })
+
+            // Group ALL items by status (not just consecutive), showing status only once per group
+            // Normalize statuses for proper grouping
+            const statusGroups = new Map<string, TrackingStatus[]>()
+            
+            rawHistory.forEach((item) => {
+              const normalizedStatus = normalizeStatus(item.status)
+              if (!statusGroups.has(normalizedStatus)) {
+                statusGroups.set(normalizedStatus, [])
+              }
+              statusGroups.get(normalizedStatus)!.push(item)
+            })
+            
+            // Rebuild history: only show the main status entry (newest) for each group
+            const groupedHistory: TrackingStatus[] = []
+            statusGroups.forEach((groupItems, statusKey) => {
+              // Sort group items by timestamp (newest first)
+              const sortedGroup = groupItems.sort((a, b) => 
+                new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+              )
+              
+              // Only show the first (newest) item for each status group
+              groupedHistory.push(sortedGroup[0])
+            })
+            
+            // Sort final history by timestamp (newest first) to maintain chronological order
+            return groupedHistory.sort((a, b) => 
+              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            )
           }
           // If booking has shipment_status but no history, create status from shipment_status
           if (booking && (booking as any).shipment_status) {
-            const statusText = (booking as any).shipment_status.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase())
-            let location = 'In transit'
+            const statusText = formatStatusForDisplay((booking as any).shipment_status)
+            let location = ''
             if ((booking as any).shipment_status.includes('MANILA')) {
               location = 'Manila, Philippines'
             } else if ((booking as any).shipment_status.includes('DUBAI') || (booking as any).shipment_status.includes('UAE')) {
@@ -245,7 +323,7 @@ export async function GET(request: NextRequest) {
           return invoiceRequest.status ? [
             {
               status: invoiceRequest.status,
-              location: booking?.receiverAddress || 'In transit',
+              location: booking?.receiverAddress || '',
               timestamp: invoiceUpdatedAt,
               description: `Invoice ${invoiceRequest.status}`,
             },

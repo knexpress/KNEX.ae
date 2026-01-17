@@ -2,8 +2,8 @@ import { FaBullseye, FaLightbulb, FaBalanceScale } from 'react-icons/fa'
 
 export default function About() {
   return (
-    <section id="about" className="bg-gray-100 py-8 md:py-16">
-      <div className="container mx-auto px-4">
+    <section id="about" className="bg-gray-100 py-8 sm:py-12 md:py-16">
+      <div className="container mx-auto px-4 sm:px-6">
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-green-600 mb-2">Who is KN Express?</h2>
           <p className="text-lg md:text-xl text-gray-700">Your Partner in Every Meaningful Shipment</p>

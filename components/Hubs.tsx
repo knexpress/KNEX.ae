@@ -26,7 +26,7 @@ export default function Hubs() {
       phone: '+971 524459157',
       operatingTime: 'EVERYDAY\n9 AM - 6 PM',
       timeZone: 'UAE Time Zone\nGMT+4',
-      mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3610.1234567890!2d55.3456789!3d25.1234567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjXCsDA3JzI0LjQiTiA1NcKwMjAnNDQuNCJF!5e0!3m2!1sen!2sae!4v1234567890123!5m2!1sen!2sae',
+      mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3607.524060618201!2d55.38167901154568!3d25.286591077560338!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5f5d863cabd055%3A0x79374f2ec91675d9!2sKN%20Express%20L.L.C!5e0!3m2!1sen!2s!4v1768640694406!5m2!1sen!2s',
     },
     {
       id: 'manila',
@@ -36,15 +36,15 @@ export default function Hubs() {
       phone: '+63 XXX XXX XXXX',
       operatingTime: 'EVERYDAY\n9 AM - 6 PM',
       timeZone: 'Philippines Time Zone\nGMT+8',
-      mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3859.1234567890!2d120.9876543!3d14.1234567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTTCsDA3JzI0LjQiTiAxMjDCsDU5JzE1LjYiRQ!5e0!3m2!1sen!2sph!4v1234567890123!5m2!1sen!2sph',
+      mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d482.9370867670044!2d121.0379549839797!3d14.456144596306698!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397cfde42cfc9cf%3A0xb23b1851b923a9a2!2sKN%20Express%20L.L.C%20Manila%20Main%20Hub!5e0!3m2!1sen!2s!4v1768640841014!5m2!1sen!2s',
     },
   ]
 
   const currentHub = hubs.find(hub => hub.id === selectedHub) || hubs[0]
 
   return (
-    <section id="hubs" className="bg-gray-100 py-8 md:py-16">
-      <div className="container mx-auto px-4">
+    <section id="hubs" className="bg-gray-100 py-8 sm:py-12 md:py-16">
+      <div className="container mx-auto px-4 sm:px-6">
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-green-600 mb-2">Our Hubs Around The World</h2>
           <p className="text-lg md:text-xl text-gray-700">Explore our global hubs for seamless shipping to and from the UAE.</p>
@@ -69,9 +69,9 @@ export default function Hubs() {
 
         {/* Hub Details */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="grid md:grid-cols-2 gap-4 md:gap-8 p-4 md:p-8">
+          <div className="flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-8 p-4 md:p-8">
             {/* Left Column - Information */}
-            <div>
+            <div className="order-2 md:order-1">
               <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">{currentHub.name}</h3>
               
               <div className="space-y-3 md:space-y-4">
@@ -105,8 +105,8 @@ export default function Hubs() {
             </div>
 
             {/* Right Column - Map */}
-            <div>
-              <div className="w-full h-64 md:h-96 rounded-lg overflow-hidden">
+            <div className="order-1 md:order-2">
+              <div className="w-full h-64 sm:h-80 md:h-96 rounded-lg overflow-hidden shadow-md">
                 <iframe
                   src={currentHub.mapUrl}
                   width="100%"

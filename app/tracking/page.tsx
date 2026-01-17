@@ -5,12 +5,14 @@ import { useSearchParams } from 'next/navigation'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { FaSearch, FaCheckCircle, FaClock, FaTruck, FaMapMarkerAlt } from 'react-icons/fa'
+import { formatStatusForDisplay } from '@/lib/shipmentStatuses'
 
 interface TrackingStatus {
   status: string
   location: string
   timestamp: string
   description: string
+  showOnlyDescription?: boolean
 }
 
 interface TrackingResponse {
@@ -80,32 +82,32 @@ function TrackingContent() {
     <div className="min-h-screen bg-gray-50">
       <Header />
       
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-gray-900 mb-8 text-center">Track Your Shipment</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6 sm:mb-8 text-center">Track Your Shipment</h1>
 
           {/* Tracking Input */}
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-            <div className="flex space-x-4">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8 mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <input
                 type="text"
                 placeholder="Enter your tracking code"
                 value={trackingCode}
                 onChange={(e) => setTrackingCode(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleTrack()}
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+                className="flex-1 px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 text-sm sm:text-base"
               />
               <button
                 onClick={() => handleTrack()}
                 disabled={loading}
-                className="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition flex items-center space-x-2 disabled:opacity-50"
+                className="bg-green-600 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg hover:bg-green-700 transition flex items-center justify-center space-x-2 disabled:opacity-50 text-sm sm:text-base whitespace-nowrap"
               >
                 <FaSearch />
                 <span>Track</span>
               </button>
             </div>
             {error && (
-              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+              <div className="mt-4 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm sm:text-base">
                 {error}
               </div>
             )}
@@ -113,19 +115,19 @@ function TrackingContent() {
 
           {/* Tracking Results */}
           {loading && (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
-              <p className="mt-4 text-gray-600">Loading tracking information...</p>
+            <div className="text-center py-8 sm:py-12">
+              <div className="inline-block animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-t-2 border-b-2 border-green-600"></div>
+              <p className="mt-4 text-gray-600 text-sm sm:text-base">Loading tracking information...</p>
             </div>
           )}
 
           {trackingData && (
-            <div className="bg-white rounded-lg shadow-lg p-6 md:p-8">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">Tracking Information</h2>
+            <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Tracking Information</h2>
               
               {/* Booking/Invoice Info */}
               {(trackingData.booking || trackingData.invoice) && (
-                <div className="mb-6 p-4 bg-green-50 rounded-lg">
+                <div className="mb-6 p-3 sm:p-4 bg-green-50 rounded-lg">
                   {trackingData.invoice && (
                     <div className="mb-3">
                       <p className="text-sm text-gray-600">AWB: <span className="font-semibold text-gray-900">{trackingData.invoice.awb}</span></p>
@@ -153,44 +155,60 @@ function TrackingContent() {
 
               {/* Status Timeline */}
               {trackingData.status && trackingData.status.length > 0 ? (
-                <div className="space-y-4 md:space-y-6">
-                  {trackingData.status.map((status, index) => (
-                    <div key={index} className="flex items-start space-x-3 md:space-x-4">
-                      <div className="flex-shrink-0">
-                        {index === 0 ? (
-                          <div className="w-10 h-10 md:w-12 md:h-12 bg-green-600 rounded-full flex items-center justify-center">
-                            <FaCheckCircle className="text-white text-lg md:text-xl" />
-                          </div>
-                        ) : (
-                          <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                            <FaClock className="text-gray-600 text-lg md:text-xl" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1 md:mb-2">
-                          <h3 className="font-semibold text-sm md:text-base text-gray-900 capitalize">
-                            {status.status.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase())}
-                          </h3>
+                <div className="space-y-4 sm:space-y-5 md:space-y-6">
+                  {trackingData.status.map((status, index) => {
+                    const isSubItem = !status.status || !status.status.trim()
+                    const isFirstItem = index === 0
+                    const prevItem = index > 0 ? trackingData.status[index - 1] : null
+                    const isNewStatusGroup = !isSubItem && (!prevItem || !prevItem.status || prevItem.status !== status.status)
+                    
+                    return (
+                      <div key={index} className={`flex items-start space-x-3 sm:space-x-4 ${isSubItem ? 'ml-3 sm:ml-4 md:ml-6' : ''}`}>
+                        <div className="flex-shrink-0">
+                          {isFirstItem ? (
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-green-600 rounded-full flex items-center justify-center">
+                              <FaCheckCircle className="text-white text-base sm:text-lg md:text-xl" />
+                            </div>
+                          ) : isSubItem ? (
+                            <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 bg-gray-400 rounded-full mt-2"></div>
+                          ) : (
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gray-300 rounded-full flex items-center justify-center">
+                              <FaClock className="text-gray-600 text-base sm:text-lg md:text-xl" />
+                            </div>
+                          )}
                         </div>
-                        <div className="flex items-center space-x-2 mb-1">
-                          <FaMapMarkerAlt className="text-green-600 text-sm md:text-base" />
-                          <p className="text-sm md:text-base text-gray-600">{status.location}</p>
+                        <div className="flex-1 min-w-0">
+                          {!isSubItem && isNewStatusGroup && (
+                            <div className="mb-2">
+                              <h3 className="font-semibold text-sm sm:text-base md:text-lg text-gray-900">
+                                {formatStatusForDisplay(status.status)}
+                              </h3>
+                            </div>
+                          )}
+                          {isSubItem && status.description && status.description.trim() && (
+                            <p className="text-sm sm:text-base text-gray-700 mb-1 break-words">{status.description}</p>
+                          )}
+                          {!isSubItem && status.description && status.description.trim() && status.description !== status.status.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase()) && (
+                            <p className="text-sm sm:text-base text-gray-600 mb-1 break-words">{status.description}</p>
+                          )}
+                          {!isSubItem && status.location && status.location.trim() && (
+                            <div className="flex items-center space-x-2 mb-1">
+                              <FaMapMarkerAlt className="text-green-600 text-xs sm:text-sm md:text-base flex-shrink-0" />
+                              <p className="text-xs sm:text-sm md:text-base text-gray-600 break-words">{status.location}</p>
+                            </div>
+                          )}
+                          <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                            {new Date(status.timestamp).toLocaleString()}
+                          </p>
                         </div>
-                        {status.description && (
-                          <p className="text-sm md:text-base text-gray-600 mb-1">{status.description}</p>
-                        )}
-                        <p className="text-xs md:text-sm text-gray-500">
-                          {new Date(status.timestamp).toLocaleString()}
-                        </p>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               ) : (
-                <div className="text-center py-6">
-                  <FaTruck className="text-4xl md:text-6xl text-gray-400 mx-auto mb-3 md:mb-4" />
-                  <p className="text-sm md:text-base text-gray-600">Tracking information will be updated as your shipment progresses.</p>
+                <div className="text-center py-6 sm:py-8">
+                  <FaTruck className="text-3xl sm:text-4xl md:text-6xl text-gray-400 mx-auto mb-3 sm:mb-4" />
+                  <p className="text-sm sm:text-base text-gray-600 px-4">Tracking information will be updated as your shipment progresses.</p>
                 </div>
               )}
             </div>
