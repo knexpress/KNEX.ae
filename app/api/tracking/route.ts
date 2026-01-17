@@ -100,13 +100,13 @@ export async function GET(request: NextRequest) {
           // Normalize statuses for proper grouping
           const statusGroups = new Map<string, TrackingStatus[]>()
           
-          rawHistory.forEach((item) => {
-            const normalizedStatus = normalizeStatus(item.status)
-            if (!statusGroups.has(normalizedStatus)) {
-              statusGroups.set(normalizedStatus, [])
-            }
-            statusGroups.get(normalizedStatus)!.push(item)
-          })
+            rawHistory.forEach((item: TrackingStatus) => {
+              const normalizedStatus = normalizeStatus(item.status)
+              if (!statusGroups.has(normalizedStatus)) {
+                statusGroups.set(normalizedStatus, [])
+              }
+              statusGroups.get(normalizedStatus)!.push(item)
+            })
           
           // Rebuild history: only show the main status entry (newest) for each group
           statusHistory = []
@@ -274,7 +274,7 @@ export async function GET(request: NextRequest) {
             // Normalize statuses for proper grouping
             const statusGroups = new Map<string, TrackingStatus[]>()
             
-            rawHistory.forEach((item) => {
+            rawHistory.forEach((item: TrackingStatus) => {
               const normalizedStatus = normalizeStatus(item.status)
               if (!statusGroups.has(normalizedStatus)) {
                 statusGroups.set(normalizedStatus, [])
