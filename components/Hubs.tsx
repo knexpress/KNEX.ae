@@ -33,7 +33,7 @@ export default function Hubs() {
       name: 'MANILA HUB',
       address: 'Manila, Philippines',
       email: 'customercare@knexpress.ae',
-      phone: '+63 XXX XXX XXXX',
+      phone: '+63 938 490 2564',
       operatingTime: 'EVERYDAY\n9 AM - 6 PM',
       timeZone: 'Philippines Time Zone\nGMT+8',
       mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d482.9370867670044!2d121.0379549839797!3d14.456144596306698!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397cfde42cfc9cf%3A0xb23b1851b923a9a2!2sKN%20Express%20L.L.C%20Manila%20Main%20Hub!5e0!3m2!1sen!2s!4v1768640841014!5m2!1sen!2s',
