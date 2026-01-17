@@ -51,7 +51,7 @@ export default function Hero() {
                   <span>Search</span>
                 </button>
                 <a
-                  href="http://booking-forms-frontend.vercel.app/"
+                  href={process.env.NEXT_PUBLIC_BOOKING_FORM_URL || "http://booking-forms-frontend.vercel.app/"}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-green-600 text-white px-4 md:px-6 py-2.5 md:py-3 rounded-lg hover:bg-green-700 transition flex items-center justify-center space-x-2 text-sm md:text-base whitespace-nowrap"
