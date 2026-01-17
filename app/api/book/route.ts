@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import connectDB from '@/lib/mongodb'
 import Booking from '@/models/Booking'
 
+// Force dynamic rendering since we use searchParams
+export const dynamic = 'force-dynamic'
+
 function generateTrackingCode(): string {
   const prefix = 'KN'
   const randomNum = Math.floor(100000 + Math.random() * 900000)
