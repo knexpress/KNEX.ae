@@ -146,7 +146,9 @@ function TrackingContent() {
                       {trackingData.booking.batch_no && (
                         <p className="text-sm text-gray-600">Batch No: <span className="font-semibold text-gray-900">{trackingData.booking.batch_no}</span></p>
                       )}
-                      <p className="text-sm text-gray-600">Service: <span className="font-semibold text-gray-900">{trackingData.booking.service?.title} ({trackingData.booking.service?.type})</span></p>
+                      <p className="text-sm text-gray-600">Service: <span className="font-semibold text-gray-900">
+                        {trackingData.booking.service?.type || 'N/A'}
+                      </span></p>
                       <p className="text-sm text-gray-600">Status: <span className="font-semibold text-green-600 capitalize">{trackingData.booking.status.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (l: string) => l.toUpperCase())}</span></p>
                     </div>
                   )}
@@ -162,18 +164,22 @@ function TrackingContent() {
                     const prevItem = index > 0 ? trackingData.status[index - 1] : null
                     const isNewStatusGroup = !isSubItem && (!prevItem || !prevItem.status || prevItem.status !== status.status)
                     
+                    // First item is current status (grey), all others are completed (green)
                     return (
                       <div key={index} className={`flex items-start space-x-3 sm:space-x-4 ${isSubItem ? 'ml-3 sm:ml-4 md:ml-6' : ''}`}>
                         <div className="flex-shrink-0">
                           {isFirstItem ? (
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-green-600 rounded-full flex items-center justify-center">
-                              <FaCheckCircle className="text-white text-base sm:text-lg md:text-xl" />
-                            </div>
-                          ) : isSubItem ? (
-                            <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 bg-gray-400 rounded-full mt-2"></div>
-                          ) : (
+                            // Current status (first item) - Grey clock icon
                             <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gray-300 rounded-full flex items-center justify-center">
                               <FaClock className="text-gray-600 text-base sm:text-lg md:text-xl" />
+                            </div>
+                          ) : isSubItem ? (
+                            // Sub-item - Small grey dot
+                            <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 bg-gray-400 rounded-full mt-2"></div>
+                          ) : (
+                            // Previous/completed statuses - Green checkmark
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-green-600 rounded-full flex items-center justify-center">
+                              <FaCheckCircle className="text-white text-base sm:text-lg md:text-xl" />
                             </div>
                           )}
                         </div>

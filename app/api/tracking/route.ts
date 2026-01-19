@@ -41,8 +41,11 @@ export async function GET(request: NextRequest) {
         $or: [
           { awb: searchCode },
           { trackingCode: searchCode },
+          { tracking_code: searchCode },
+          { awb_number: searchCode },
+          { trackingNumber: searchCode },
         ],
-      })
+      }).lean()
 
       if (booking) {
         // Return booking information
@@ -159,13 +162,34 @@ export async function GET(request: NextRequest) {
           }]
         }
 
+        // Handle service field - it can be a string or an object
+        let serviceData: any = null
+        const rawService = (booking as any).service || (booking as any).service_code
+        
+        if (rawService) {
+          if (typeof rawService === 'string') {
+            // Service is stored as a string (e.g., "PH_TO_UAE")
+            serviceData = {
+              type: rawService,
+            }
+          } else if (typeof rawService === 'object' && rawService !== null) {
+            // Service is stored as an object
+            serviceData = {
+              id: rawService.id || '',
+              title: rawService.title || '',
+              type: rawService.type || '',
+              price: rawService.price || '',
+            }
+          }
+        }
+
         return NextResponse.json({
           code: searchCode,
           type: 'booking',
           booking: {
             trackingCode: booking.trackingCode,
             awb: booking.awb || null,
-            service: booking.service,
+            service: serviceData,
             status: booking.shipment_status || booking.status || 'pending',
             batch_no: (booking as any).batch_no || null,
             createdAt: createdAt,
@@ -200,12 +224,12 @@ export async function GET(request: NextRequest) {
                 query,
                 { trackingCode: invoiceRequest.trackingCode },
               ],
-            })
+            }).lean()
           } else {
-            booking = await Booking.findOne({ trackingCode: invoiceRequest.trackingCode })
+            booking = await Booking.findOne({ trackingCode: invoiceRequest.trackingCode }).lean()
           }
         } else {
-          booking = await Booking.findOne(query)
+          booking = await Booking.findOne(query).lean()
         }
       }
 
@@ -226,11 +250,34 @@ export async function GET(request: NextRequest) {
           status: invoiceRequest.status || 'processing',
           createdAt: invoiceCreatedAt,
         },
-        booking: booking ? {
-          trackingCode: booking.trackingCode,
-          service: booking.service,
-          status: (booking as any).shipment_status || booking.status,
-        } : null,
+        booking: booking ? (() => {
+          // Handle service field - it can be a string or an object
+          const rawService = (booking as any).service || (booking as any).service_code
+          let serviceData: any = null
+          
+          if (rawService) {
+            if (typeof rawService === 'string') {
+              // Service is stored as a string (e.g., "PH_TO_UAE")
+              serviceData = {
+                type: rawService,
+              }
+            } else if (typeof rawService === 'object' && rawService !== null) {
+              // Service is stored as an object
+              serviceData = {
+                id: rawService.id || '',
+                title: rawService.title || '',
+                type: rawService.type || '',
+                price: rawService.price || '',
+              }
+            }
+          }
+          
+          return {
+            trackingCode: (booking as any).trackingCode || (booking as any).tracking_code || booking.trackingCode,
+            service: serviceData,
+            status: (booking as any).shipment_status || booking.status,
+          }
+        })() : null,
         status: (() => {
           // If booking found, use its shipment_status_history
           if (booking && (booking as any).shipment_status_history && Array.isArray((booking as any).shipment_status_history) && (booking as any).shipment_status_history.length > 0) {
